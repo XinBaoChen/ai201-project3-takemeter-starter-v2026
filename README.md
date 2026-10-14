@@ -42,6 +42,14 @@
 <!-- Your community, and what your classifier sorts posts into. Three or four
      sentences. -->
 
+Milestone 1 community: [r/running](https://www.reddit.com/r/running/), a public
+community with training logs, race reports, questions, gear discussions, and
+running advice. I read 36 posts before choosing labels. Candidate distinctions
+are evidence-backed analysis vs. unsupported takes, personal reports vs.
+general advice, questions vs. conclusions, and training/performance vs.
+gear/logistics. The full reading notes are in [MILESTONE1.md](MILESTONE1.md);
+the final taxonomy will be locked after testing these boundaries on more text.
+
 
 
 ---
