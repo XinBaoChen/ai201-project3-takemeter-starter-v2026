@@ -62,33 +62,70 @@ the final taxonomy will be locked after testing these boundaries on more text.
      The decision rule is worth a point on its own and it's the thing most
      people leave out. Every taxonomy has a hardest boundary. Name yours. -->
 
-### `label_one`
+### `analysis`
 
-**Definition:**
-
-**Example 1:**
->
-
-**Example 2:**
->
-
-### `label_two`
-
-**Definition:**
+**Definition:** Makes an argument backed by a specific, checkable fact.
 
 **Example 1:**
->
+> "The entry fee went from 45 to 72 over four years. Field size went from
+> 3,200 to 3,400. Whatever the extra 27 is paying for, it isn't capacity."
 
 **Example 2:**
->
+> "Split the field by finish time and looked at DNF rates. Under 3:30, about
+> 1%. Over 5 hours, about 9%."
+
+### `hot_take`
+
+**Definition:** Makes a confident general claim without offering checkable
+support.
+
+**Example 1:**
+> "Super shoes have ruined amateur racing. Times mean nothing now and everyone
+> knows it."
+
+**Example 2:**
+> "The 5k is the only honest distance. Everything longer is a logistics
+> competition."
+
+### `reaction`
+
+**Definition:** Gives an immediate emotional response to a recent running event
+or experience.
+
+**Example 1:**
+> "Missed my goal by eleven seconds. Eleven. I'm going to be thinking about
+> that for a month."
+
+**Example 2:**
+> "Just signed up for my first marathon and I'm equal parts excited and
+> terrified."
 
 ### The hardest boundary
 
-**Which two labels:**
+**Which two labels:** `analysis` vs. `hot_take`
 
-**The decision rule I used every time:**
-<!-- e.g. "If the post names a specific checkable fact, it's `analysis`, even
-     if the tone is heated." -->
+**The decision rule I used every time:** If the post's main claim can be
+checked against a named number, date, quote, comparison, or logged experience
+included in the post, label it `analysis`; if it only asserts a broad
+conclusion, label it `hot_take`. A number by itself is not enough: "I ran 20
+miles and it was awful" is a `reaction` unless the number is used as evidence
+for an argument.
+
+### Boundary crash test
+
+I stress-tested the definitions with eight fresh borderline posts. Each one
+had one label that won under the rule:
+
+| Boundary post | Label | Why |
+|---|---|---|
+| "My last four long runs were 18, 19, 20, and 20 miles; my race pace improved each time." | `analysis` | Uses a sequence of checkable observations as evidence. |
+| "Long runs are the only training that matters." | `hot_take` | Broad claim with no support. |
+| "The watch died at mile 18 and I panicked, but I finished." | `reaction` | Immediate experience and feeling are the main job. |
+| "My watch died at mile 18; my final 10k was 40 seconds faster than the first 10k." | `analysis` | The comparison supports an implied conclusion. |
+| "I missed the cutoff by 30 seconds and I am furious." | `reaction` | The emotional response dominates. |
+| "Missing a cutoff by 30 seconds proves race organizers do not respect runners." | `hot_take` | General accusation without evidence beyond one case. |
+| "In my last three races, I slowed after mile 20 by 8%, 6%, and 7%." | `analysis` | Specific repeated measurements make an argument possible. |
+| "Every marathon becomes a survival hike after mile 20." | `hot_take` | Confident universal claim, no checkable support offered. |
 
 
 
