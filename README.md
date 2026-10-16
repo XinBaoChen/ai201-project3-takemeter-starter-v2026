@@ -136,19 +136,24 @@ had one label that won under the rule:
 <!-- Where you collected from, how you labelled, your counts, and three hard
      cases. -->
 
-**Where the posts came from:**
+**Where the posts came from:** 216 public posts from r/running, supplied in
+`labels.csv`. The file is one unsplit CSV with `text`, `label`, and `note`.
 
-**How I labelled them:** <!-- Cold first? Pre-labelled with AI and corrected?
-Say so plainly — the disclosure is required, not penalised. -->
+**How I labelled them:** The first 20 rows are the cold-review block: 6 are
+honestly marked `cold`, and 14 are marked `cold_review_required` for me to
+review before calling them cold. The remaining rows were originally marked
+`checked`. I mapped `evidence_backed` to `analysis` and `unsupported_take` to
+`hot_take`, then manually relabeled 33 clearly emotional/event-response posts
+as `reaction`. I did not claim unchecked rows were cold labels.
 
 **Counts per label:**
 
 | Label | Count | Share |
 |---|---|---|
-|  |  |  |
-|  |  |  |
-|  |  |  |
-| **Total** |  | 100% |
+| `analysis` | 51 | 23.6% |
+| `hot_take` | 132 | 61.1% |
+| `reaction` | 33 | 15.3% |
+| **Total** | **216** | **100%** |
 
 **Three hard cases**
 
@@ -156,25 +161,31 @@ Say so plainly — the disclosure is required, not penalised. -->
      been, and what you chose. These are worth more than the easy 190. -->
 
 **1.**
-> *The post:*
+> *The post:* “I am really terrified of my long run this week.”
 >
-> *Could have been:*
+> *Could have been:* `reaction` or `hot_take`
 >
-> *I chose, because:*
+> *I chose, because:* The main job is expressing immediate fear about a
+> specific upcoming experience, not making a general claim.
 
 **2.**
-> *The post:*
+> *The post:* “Beermile Update!!! Took around 28 minutes and threw up whilst
+> drinking the last one.”
 >
-> *Could have been:*
+> *Could have been:* `reaction` or `analysis`
 >
-> *I chose, because:*
+> *I chose, because:* The time is background; the post is mainly an immediate
+> reaction to a chaotic event.
 
 **3.**
-> *The post:*
+> *The post:* “My last four long runs were 18, 19, 20, and 20 miles; my race
+> pace improved each time.”
 >
 > *Could have been:*
+> `analysis` or `hot_take`
 >
-> *I chose, because:*
+> *I chose, because:* The repeated, checkable observations support a conclusion,
+> so it is `analysis`.
 
 ---
 
