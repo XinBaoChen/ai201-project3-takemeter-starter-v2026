@@ -53,11 +53,12 @@ whether you hit them:
 
 ## 1.
 
-<!-- Your criterion. It must name a number. -->
+The fine-tuned classifier reaches at least **0.65 overall accuracy** on the
+held-out test set.
 
-
-
-**Why this target:**
+**Why this target:** With three labels, random guessing is about 0.33. A 0.65
+target means the model is useful more often than not while leaving room for
+genuinely ambiguous running posts.
 
 
 
@@ -65,11 +66,12 @@ whether you hit them:
 
 ## 2.
 
-<!-- Your criterion. -->
+Each label reaches at least **0.55 F1**, and the model reaches at least **0.60
+macro F1**, on the held-out test set.
 
-
-
-**Why this target:**
+**Why this target:** Overall accuracy could hide a model that ignores
+`reaction` or confuses every `hot_take` with `analysis`. The per-label floor
+protects each category, while macro F1 rewards balanced performance.
 
 
 
@@ -77,11 +79,13 @@ whether you hit them:
 
 ## 3.
 
-<!-- Your criterion. -->
+No label contains more than **70%** of the labeled posts, and the smallest
+label contains at least **15%** of the data.
 
-
-
-**Why this target:**
+**Why this target:** The 70% ceiling follows the project requirement and
+prevents majority-label guessing. The 15% floor gives the smallest category
+enough examples to appear meaningfully in the train, validation, and test
+splits.
 
 
 
@@ -89,11 +93,12 @@ whether you hit them:
 
 ## 4.
 
-<!-- Your criterion. -->
+On a blind second labeling of **30 posts**, the original and repeat labels
+agree on at least **24 of 30 posts (0.80 agreement)**.
 
-
-
-**Why this target:**
+**Why this target:** This checks whether the taxonomy is clear enough to apply
+twice, not merely whether a model can imitate one inconsistent labeling pass.
+Disagreements will be recorded instead of quietly edited away.
 
 
 
@@ -101,11 +106,12 @@ whether you hit them:
 
 ## 5.
 
-<!-- Your criterion. -->
+Predictions with confidence of at least **0.75** are correct on at least **80%**
+of those test examples, with at least **15 examples** in that confidence group.
 
-
-
-**Why this target:**
+**Why this target:** Confidence should help identify predictions that can be
+trusted and predictions that need review. The minimum group size prevents one
+lucky prediction from making the criterion look successful.
 
 
 
