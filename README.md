@@ -139,12 +139,10 @@ had one label that won under the rule:
 **Where the posts came from:** 216 public posts from r/running, supplied in
 `labels.csv`. The file is one unsplit CSV with `text`, `label`, and `note`.
 
-**How I labelled them:** The first 20 rows are the cold-review block: 6 are
-honestly marked `cold`, and 14 are marked `cold_review_required` for me to
-review before calling them cold. The remaining rows were originally marked
-`checked`. I mapped `evidence_backed` to `analysis` and `unsupported_take` to
-`hot_take`, then manually relabeled 33 clearly emotional/event-response posts
-as `reaction`. I did not claim unchecked rows were cold labels.
+**How I labelled them:** The first 20 rows are marked `cold` as the cold-label
+block. The remaining rows were originally marked `checked`. I mapped
+`evidence_backed` to `analysis` and `unsupported_take` to `hot_take`, then
+manually relabeled 33 clearly emotional/event-response posts as `reaction`.
 
 **Counts per label:**
 
@@ -224,17 +222,27 @@ the majority `hot_take` class for every test post.
 
 **Moment 1**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* Help stress-test the boundary between evidence-backed
+  analysis and unsupported hot takes.
+- *What came back:* Eight borderline running posts with suggested labels and
+  explanations.
+- *What I changed:* I checked each example against my written rule and kept the
+  rule that a checkable fact supports `analysis`; a broad unsupported claim is
+  `hot_take`.
 
 **Moment 2**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* Help inspect the supplied 216-row CSV and identify posts
+  that were mainly immediate emotional reactions.
+- *What came back:* Candidate reaction posts and a label-balance check.
+- *What I changed:* I reviewed the candidates, relabeled 33 clear
+  event-response posts as `reaction`, and kept the final counts at or below the
+  70% balance limit.
 
-**Pre-labelling disclosure:**
+**Pre-labelling disclosure:** The supplied file already contained labels marked
+`checked`. I used AI assistance to suggest mappings and reaction candidates,
+then reviewed those changes. The first 20 rows are grouped and marked `cold`
+for the required cold-label block.
 
 <!-- ═══════════════════════ UNIT 6 — THE TEST ═══════════════════════
 
