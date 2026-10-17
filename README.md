@@ -193,15 +193,21 @@ as `reaction`. I did not claim unchecked rows were cold labels.
 
 <!-- Your starting model, your settings, and anything you changed and why. -->
 
-**Base model:**
+**Base model:** `distilbert-base-uncased`
 
-**Settings:** <!-- epochs, learning rate, batch size, seed -->
+**Settings:** 3 epochs, learning rate `2e-5`, batch size `16`, max length `128`,
+seed `42`.
 
-**Anything I changed from the defaults, and why:**
+**Anything I changed from the defaults, and why:** Nothing. I trained on CPU
+(`torch 2.14.1+cpu`).
 
-**Split sizes:** <!-- train / val / test, and per-label counts in the test
-split. If a label had fewer than about 8 in test, say so — it explains a lot
-of next unit's variance. -->
+**Split sizes:** train `150` / validation `33` / test `33`. Test counts were
+`analysis`: 8, `hot_take`: 20, and `reaction`: 5. The reaction score will be
+jumpy because it has fewer than 8 test examples.
+
+**Saved outputs:** [results.json](results.json) and [test_split.csv](test_split.csv).
+The first run reached `0.606` accuracy and `0.252` macro F1; the model predicted
+the majority `hot_take` class for every test post.
 
 
 
