@@ -207,6 +207,11 @@ jumpy because it has fewer than 8 test examples.
 The first run reached `0.606` accuracy and `0.252` macro F1; the model predicted
 the majority `hot_take` class for every test post.
 
+**Prediction before the baseline:** I predict the trained model will beat the
+definition-prompted baseline on overall accuracy because it saw labeled
+examples, but the baseline may be better on `analysis` and `reaction` if the
+trained model keeps favoring `hot_take`.
+
 
 
 ---
@@ -258,18 +263,26 @@ for the required cold-label block.
 
 | Measure | Baseline | Trained | Difference |
 |---|---|---|---|
-| Overall accuracy |  |  |  |
-| Macro F1 |  |  |  |
-| F1 — `label_one` |  |  |  |
-| F1 — `label_two` |  |  |  |
+| Overall accuracy | 0.303 | 0.606 | +0.303 |
+| Macro F1 | 0.311 | 0.252 | -0.060 |
+| F1 — `analysis` | 0.421 | 0.000 | -0.421 |
+| F1 — `hot_take` | 0.240 | 0.755 | +0.515 |
+| F1 — `reaction` | 0.273 | 0.000 | -0.273 |
 
 **What I predicted before I looked:**
-<!-- Milestone 1 asks you to write this BEFORE seeing the trained numbers. A
-     prediction made afterwards isn't one. -->
+I predicted the trained model would beat the definition-prompted baseline on
+overall accuracy, while the baseline might be better on `analysis` and
+`reaction`.
 
 **What the gap actually means:**
-<!-- If the baseline matched your trained model, your fine-tuning added
-     nothing — and that is a real finding, not a failure. Say it plainly. -->
+Fine-tuning improved accuracy by 0.303 and `hot_take` F1 by 0.515, but the
+trained model collapsed to the majority class and lost both `analysis` and
+`reaction`. The definition-prompted baseline had better macro F1, so the
+training added accuracy without adding balanced label understanding.
+
+**Bare-label comparison:** Without definitions, accuracy was `0.242` and
+macro F1 was `0.263`. The written definitions improved the baseline by `0.061`
+accuracy and `0.048` macro F1.
 
 
 
