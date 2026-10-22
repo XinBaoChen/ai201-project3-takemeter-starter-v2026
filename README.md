@@ -331,11 +331,11 @@ went the other way. The model learned the majority label, not the boundary.
 
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| 1 | Overall accuracy | ≥ 0.65 in every seed | MISSED | All three seeds were 0.606. |
+| 2 | Per-label F1 and macro F1 | ≥ 0.55 per label; ≥ 0.60 macro | MISSED | `analysis` and `reaction` were 0.000 F1; macro F1 was 0.252 in every seed. |
+| 3 | Dataset balance | No label over 70%; smallest at least 15% | MET | `hot_take` was 61.1%; `reaction` was 15.3%. |
+| 4 | Human consistency | ≥ 24/30 agreement | MET | Staff comparison was 30/30, or 100%. |
+| 5 | Confidence usefulness | ≥ 80% correct at 0.75+ confidence with n≥15 | NOT TESTED | The most-confident group had only 11 examples, below the required 15. |
 
 **Diagnoses**
 
@@ -348,6 +348,26 @@ went the other way. The model learned the majority label, not the boundary.
      have that can tell a LABELLING problem from a MODEL problem, and this
      section is graded on whether you used it that way. -->
 
+**Criterion 1 diagnosis:** This was a model/data limitation, not split luck.
+Accuracy was exactly 0.606 for all three seeds, and the confusion matrix shows
+the model predicted `hot_take` for every test post. The dataset passed the
+balance criterion, but 132 of 216 examples were still `hot_take`, so the model
+learned the majority shortcut. The three-seed stability rules out a friendly
+split as the main cause.
+
+**Criterion 2 diagnosis:** The model could not learn the minority-label
+boundaries from this dataset and training setup. Every `analysis` post (8/8)
+and every `reaction` post (5/5) was called `hot_take`, while `hot_take` F1 was
+0.755. This is not supported as a labeling-consistency problem by the staff
+agreement check: I matched all 30 staff labels, so the evidence points more
+strongly to a task/model limitation, amplified by only 5 `reaction` examples in
+the test split.
+
+**Criterion 5 note:** This criterion was not fairly measurable. The run
+reported 11 examples in the most-confident group, not the required 15. The
+81.8% figure is descriptive, but it cannot earn a MET verdict under the
+original criterion. I am leaving the target unchanged rather than lowering it
+after seeing the result.
 
 
 ---
