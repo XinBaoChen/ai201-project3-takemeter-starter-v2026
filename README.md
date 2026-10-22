@@ -295,27 +295,30 @@ accuracy and `0.048` macro F1.
 
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
 |---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |
+| 1. Accuracy | 0.65+ | 0.606 | 0.606 | 0.606 | MISSED |
+| 2. Per-label F1 / macro F1 | 0.55+ each / 0.60+ macro | 0.000 / 0.252 | 0.000 / 0.252 | 0.000 / 0.252 | MISSED |
+| 3. Balance | max 70%, min 15% | 61.1% / 15.3% | 61.1% / 15.3% | 61.1% / 15.3% | MET |
+| 4. Consistency | 24/30 agreement | not tested | not tested | not tested | NOT TESTED |
+| 5. Confidence | 80% at 0.75+, n≥15 | 81.8%, n=11 | 81.8%, n=11 | 81.8%, n=11 | NOT TESTED |
+
+Accuracy was identical across seeds (spread `0.000`), so the majority-class
+result was stable rather than a friendly split accident. The `reaction` test
+support was only 5 posts, which makes its F1 especially fragile.
 
 ### Confusion matrix
 
 <!-- ⚠️ TYPED AS A MARKDOWN TABLE. The notebook prints one ready to paste.
      An image of a matrix earns nothing. -->
 
-| true \ predicted |  |  |  |
+| true \ predicted | analysis | hot_take | reaction |
 |---|---|---|---|
-| **** |  |  |  |
-| **** |  |  |  |
-| **** |  |  |  |
+| **analysis** | 0 | 8 | 0 |
+| **hot_take** | 0 | 20 | 0 |
+| **reaction** | 0 | 5 | 0 |
 
 **My biggest off-diagonal number, and what it means:**
-<!-- Not "the model made mistakes" — WHICH boundary it didn't learn, and which
-     direction. "7 real analysis posts were called hot_take and only 3 went the
-     other way" is a direction, not just an error rate. -->
+Eight real `analysis` posts were called `hot_take`, while zero `hot_take` posts
+went the other way. The model learned the majority label, not the boundary.
 
 
 
