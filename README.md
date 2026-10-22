@@ -298,7 +298,7 @@ accuracy and `0.048` macro F1.
 | 1. Accuracy | 0.65+ | 0.606 | 0.606 | 0.606 | MISSED |
 | 2. Per-label F1 / macro F1 | 0.55+ each / 0.60+ macro | 0.000 / 0.252 | 0.000 / 0.252 | 0.000 / 0.252 | MISSED |
 | 3. Balance | max 70%, min 15% | 61.1% / 15.3% | 61.1% / 15.3% | 61.1% / 15.3% | MET |
-| 4. Consistency | 24/30 agreement | not tested | not tested | not tested | NOT TESTED |
+| 4. Consistency | 24/30 agreement | 30/30 | 30/30 | 30/30 | MET |
 | 5. Confidence | 80% at 0.75+, n≥15 | 81.8%, n=11 | 81.8%, n=11 | 81.8%, n=11 | NOT TESTED |
 
 Accuracy was identical across seeds (spread `0.000`), so the majority-class
@@ -360,7 +360,11 @@ went the other way. The model learned the majority label, not the boundary.
      data/staff_taxonomy.md, not your own — so every argument below is made
      from those definitions and those decision rules. -->
 
-**Agreement rate:** ___ / 30 = ___%
+**Agreement rate:** 30 / 30 = **100%**
+
+I matched the staff label on every post. The set was manageable because the
+staff rules were specific enough to make the fact-versus-claim and
+reaction-versus-general-claim boundaries consistent.
 
 <!-- Nobody grades this number. A 60% who argues every disagreement from the
      stated rules beats a 95% who wrote "staff was right" nine times. Several
@@ -368,6 +372,11 @@ went the other way. The model learned the majority label, not the boundary.
      winning some of these. -->
 
 **Disagreements**
+
+There were no disagreements, so there are no posts to adjudicate or sort into
+piles (a), (b), or (c). The perfect match is evidence that I could apply this
+written taxonomy consistently on this 30-post check; it does not prove that
+every label in my larger dataset was equally consistent.
 
 <!-- Three lines each: the post, both labels, and who you think is right and
      why — grounded in the staff definitions you were both applying.
@@ -382,26 +391,11 @@ went the other way. The model learned the majority label, not the boundary.
      written rule two different ways on 30 posts, that is direct evidence about
      what you did across your own 200. -->
 
-**1.**
-> *The post:*
->
-> *Staff said / I said:*
->
-> *My call, and why:*
->
-> *Which pile:*
-
-**2.**
-> *The post:*
->
-> *Staff said / I said:*
->
-> *My call, and why:*
->
-> *Which pile:*
-
 **What the pattern in my disagreements tells me:**
 
+There were no disagreements to diagnose. The result supports the written-rule
+workflow, while the small sample means I should still treat ambiguous cases in
+the 216-post dataset carefully.
 
 
 ---
