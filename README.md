@@ -424,22 +424,36 @@ the 216-post dataset carefully.
 
 **What I changed:**
 
+I changed one training setting: I used inverse-frequency class weights in the
+cross-entropy loss. The model now gets a larger penalty for ignoring the
+smaller `analysis` and `reaction` labels. I changed no labels, posts, split
+seeds, or model architecture.
+
 **Which diagnosis pointed at it:**
+
+The before run predicted `hot_take` for every test post across all three seeds.
+That stable majority-class shortcut, plus the missing minority-label F1 scores,
+pointed to a training imbalance problem rather than a staff-taxonomy agreement
+problem.
 
 ### Run Log — After
 
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
 |---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |
+| 1. Overall accuracy | ≥ 0.65 | 0.545 | 0.455 | 0.576 | MISSED |
+| 2. Every label F1 and macro F1 | per-label ≥ 0.55; macro ≥ 0.60 | 0.400 / 0.463 | 0.111 / 0.254 | 0.222 / 0.319 | MISSED |
+| 3. Label balance | no label > 70%; smallest ≥ 15% | unchanged | unchanged | unchanged | MET |
+| 4. Human agreement | ≥ 24/30 | 30/30 | 30/30 | 30/30 | MET |
+| 5. Confidence | ≥ 0.75 accuracy with at least 15 examples | 0.364 (11) | 0.636 (11) | 0.727 (11) | NOT TESTED |
 
 **Did it help, and how do I know:**
 
-<!-- If it didn't, say so. Relabelling that didn't help is a genuinely
-     interesting result and earns full credit. -->
+It helped the model stop predicting only `hot_take`: seed 42 reached an
+`analysis` F1 of 0.400 and a macro F1 of 0.463. It did not help the overall
+criterion, because accuracy fell from 0.606 in every before run to
+0.455–0.576 after weighting, and the three after accuracies spread by 0.121.
+So the change improved minority-label coverage but made the measurement less
+stable and did not meet the targets. Tiny dataset, big feelings.
 
 
 
@@ -447,13 +461,30 @@ the 216-post dataset carefully.
 
 ## What's Still Broken
 
-<!-- For each criterion still missed: what you'd do, and why you stopped. -->
+Criteria 1 and 2 are still missed: the weighted model averages 0.525 accuracy
+and 0.345 macro F1 across the three seeds, below the targets. Reaction F1 is
+still 0.267, 0, and 0, so the thinnest label remains difficult. The after
+spread is over ten percentage points, which means this 216-row, imbalanced
+dataset is not a stable measurement yet. Criteria 3 and 4 remain met; criterion
+5 is still not tested because each confidence group has only 11 examples,
+below the required 15.
+
+If I continued, I would add carefully labeled examples to `reaction` and
+rebalance the dataset before trying another training setting. I stopped after
+one controlled change so its effect stayed identifiable, rather than turning
+the experiment into a mystery stew.
 
 
 
 **The gap between what I meant my labels to capture and what the model
 learned:**
-<!-- Two sentences. Your confusion matrix is the evidence. -->
+
+Before weighting, the model learned that the safest answer was `hot_take` and
+sent every test post there, even though 8 `analysis` and 5 `reaction` posts
+were present. After weighting, it at least separated some minority examples,
+but it traded errors across all three labels and remained especially weak on
+`reaction`; the 0.121 accuracy spread shows that the learned boundary is not
+reliable yet.
 
 
 
