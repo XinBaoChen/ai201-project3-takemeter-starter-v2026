@@ -249,6 +249,21 @@ trained model keeps favoring `hot_take`.
 then reviewed those changes. The first 20 rows are grouped and marked `cold`
 for the required cold-label block.
 
+**Moment 3 — error diagnosis**
+
+- *What I asked for:* Help compare the before and after run metrics and
+  confusion patterns without changing my criteria after seeing the results.
+- *What came back:* The clearest pattern was a stable majority-class shortcut:
+  before weighting, all three seeds sent every test post to `hot_take`; after
+  weighting, minority labels appeared, but the accuracy spread reached 0.121
+  and `reaction` remained weak.
+- *What I changed:* I used that diagnosis to choose one controlled improvement,
+  inverse-frequency class-weighted loss, and reported that it improved
+  minority-label coverage but did not meet the accuracy or F1 targets.
+
+AI did not make the final training or agreement decisions for me. I checked the
+CSV, staff labels, metrics, and confusion matrices against the saved artifacts.
+
 <!-- ═══════════════════════ UNIT 6 — THE TEST ═══════════════════════
 
      Don't fill these in during unit 5.
