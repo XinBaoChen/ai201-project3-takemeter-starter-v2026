@@ -1,4 +1,4 @@
-# TakeMeter
+﻿# TakeMeter
 
 > ### 👋 Start here
 >
@@ -49,6 +49,24 @@ are evidence-backed analysis vs. unsupported takes, personal reports vs.
 general advice, questions vs. conclusions, and training/performance vs.
 gear/logistics. The full reading notes are in [MILESTONE1.md](MILESTONE1.md);
 the final taxonomy will be locked after testing these boundaries on more text.
+
+## The Shape
+
+I am extending TakeMeter, my running post classifier. I picked **Shape C**.
+The new feature will flag low confidence predictions for human review. The
+three labels will stay the same. This is one small change, not a whole new
+project.
+
+### Out of scope
+
+I am not adding new labels. I am not changing the DistilBERT training setup.
+I am not building a hosted website.
+
+### Stretch goal
+
+I also plan to measure a latency breakdown. I will record how long each stage
+takes during one run, including loading the model, preparing the text,
+predicting the label, and writing the log.
 
 
 
