@@ -23,6 +23,7 @@ accuracy.
     python baseline.py --help
     python baseline.py
     python baseline.py --trained results.json
+    python baseline.py --review-threshold 0.75 --review-out review_results.json
 
 The first run downloads the model, about 1.6 GB. Do that before class, not
 during.
@@ -119,6 +120,43 @@ def classify(texts, labels, definitions=None, quiet=False):
     return predictions
 
 
+def classify_with_review(texts, labels, definitions=None, threshold=0.75, quiet=False):
+    """Classify posts and mark predictions that need a human check."""
+    from transformers import pipeline
+
+    if not 0.0 <= threshold <= 1.0:
+        raise ValueError("review threshold must be between 0 and 1")
+
+    if not quiet:
+        print(f"Loading {ZERO_SHOT_MODEL} (first run downloads ~1.6 GB)…", flush=True)
+
+    classifier = pipeline("zero-shot-classification", model=ZERO_SHOT_MODEL)
+    definitions = definitions or {}
+    candidates = [definitions.get(label, label) for label in labels]
+    back = {candidate: label for candidate, label in zip(candidates, labels)}
+    records = []
+
+    for i, text in enumerate(texts, 1):
+        if not quiet:
+            print(f"  {i}/{len(texts)}", end="\r", flush=True)
+        result = classifier(
+            str(text),
+            candidate_labels=candidates,
+            hypothesis_template=HYPOTHESIS,
+        )
+        confidence = float(result["scores"][0])
+        records.append({
+            "text": str(text),
+            "predicted": back[result["labels"][0]],
+            "confidence": confidence,
+            "needs_review": confidence < threshold,
+        })
+
+    if not quiet:
+        print(" " * 30, end="\r")
+    return records
+
+
 def score(gold, predicted, labels):
     """
     Accuracy and per-label precision / recall / F1.
@@ -201,6 +239,10 @@ def main():
     parser.add_argument("--out", default="baseline_results.json")
     parser.add_argument("--trained", default=None,
                         help="results.json from the notebook, to compare against")
+    parser.add_argument("--review-threshold", type=float, default=None,
+                        help="also flag predictions below this confidence (0 to 1)")
+    parser.add_argument("--review-out", default="review_results.json",
+                        help="JSON file for confidence review results")
     args = parser.parse_args()
 
     try:
@@ -260,7 +302,17 @@ def main():
     print(f"\nClassifying {len(texts)} posts across {len(labels)} labels.")
     print("A few seconds each — this is what no fine-tuning costs at runtime.\n")
 
-    predicted = classify(texts, labels, definitions)
+    review_records = None
+    if args.review_threshold is None:
+        predicted = classify(texts, labels, definitions)
+    else:
+        try:
+            review_records = classify_with_review(
+                texts, labels, definitions, threshold=args.review_threshold
+            )
+        except ValueError as error:
+            parser.error(str(error))
+        predicted = [record["predicted"] for record in review_records]
     scores = score(gold, predicted, labels)
 
     print(f"accuracy  {scores['accuracy']:.3f}")
@@ -275,7 +327,7 @@ def main():
     print("\n\nPaste this into your README under **Baseline vs. Trained**:\n")
     print(markdown_table(scores, labels, trained))
 
-    Path(args.out).write_text(json.dumps({
+    output = {
         "model": ZERO_SHOT_MODEL,
         "n": len(texts),
         "seed": args.seed,
@@ -286,9 +338,23 @@ def main():
             {"text": t, "gold": g, "predicted": p}
             for t, g, p in zip(texts, gold, predicted)
         ],
-    }, indent=2), encoding="utf-8")
+    }
+    if review_records is not None:
+        output["review_threshold"] = args.review_threshold
+        output["review_predictions"] = review_records
+        Path(args.review_out).write_text(json.dumps({
+            "model": ZERO_SHOT_MODEL,
+            "review_threshold": args.review_threshold,
+            "predictions": review_records,
+        }, indent=2), encoding="utf-8")
+
+    Path(args.out).write_text(json.dumps(output, indent=2), encoding="utf-8")
 
     print(f"\nWrote {args.out}. Commit it.")
+    if review_records is not None:
+        review_count = sum(record["needs_review"] for record in review_records)
+        print(f"Review queue: {review_count}/{len(review_records)} posts")
+        print(f"Wrote {args.review_out}.")
     print("\nBefore you look at your trained model's numbers: write one sentence")
     print("predicting where it will beat this. Milestone 1 asks for it, and a")
     print("prediction made after the fact isn't one.")

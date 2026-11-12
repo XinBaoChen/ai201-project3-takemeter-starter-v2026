@@ -154,6 +154,19 @@ This runs a general model over your posts using **only your label
 definitions**, with no training. It's the fair opponent your fine-tuned model
 has to beat.
 
+### Shape C review mode
+
+The baseline can also flag predictions that look unsure:
+
+```bash
+python baseline.py --review-threshold 0.75 --review-out review_results.json
+```
+
+The normal command still works the old way. The extra flag keeps the predicted
+label and adds its confidence plus `needs_review`. Posts below the threshold
+go into the review queue. The command writes those records to
+`review_results.json`.
+
 **It scores `test_split.csv`** — the held-out posts the notebook saved in unit 5,
 the same ones your trained model was measured on. Two numbers from two different
 sets of posts aren't a comparison, which is why it reads that file rather than
