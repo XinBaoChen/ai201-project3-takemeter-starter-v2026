@@ -107,6 +107,68 @@ Prediction averaged **2583.595 ms**. Logging and other work averaged **1.000
 ms**. The full log keeps the numbers, so this is not a guess wearing a lab
 coat.
 
+## Milestone 5 Run Log
+
+I ran the review command three times with the same threshold and the same
+33-post held-out set. I changed nothing between runs. The full results are in
+[milestone5_log.jsonl](milestone5_log.jsonl). The three invalid threshold
+trials are in [milestone5_invalid_log.jsonl](milestone5_invalid_log.jsonl).
+
+| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
+|---|---|---:|---:|---:|---|
+| 1. Complete prediction records | 99 of 99 | 33/33 | 33/33 | 33/33 | MET |
+| 2. Useful review queue | 20% to 80% reviewed | 30/33, 90.91% | 30/33, 90.91% | 30/33, 90.91% | MISSED |
+| 3. Trusted accuracy | At least 0.65 with 10 trusted posts | 0.333, 3 posts | 0.333, 3 posts | 0.333, 3 posts | MISSED |
+| 4. Invalid input leaves evidence | 3 of 3 errors logged under 10s | 1/1 | 1/1 | 1/1 | MET |
+| 5. Runtime and breakdown | At most 5 seconds per post | 1.871s/post | 1.670s/post | 1.667s/post | MET |
+
+### Evidence from the run files
+
+The prediction records came from `classify_with_review()` in
+[baseline.py](baseline.py). This line is from the first full run:
+
+```json
+{"timestamp":"2026-11-13T03:23:58.205797+00:00","event":"prediction","output":"reaction","confidence":0.518062,"needs_review":true,"duration_ms":7059.808}
+```
+
+The completion record came from the same function. It shows the latency
+breakdown instead of making me guess where the time went:
+
+```json
+{"timestamp":"2026-11-13T03:24:51.326580+00:00","event":"run_completed","output_count":33,"duration_ms":61741.86,"model_load_duration_ms":1560.117,"prediction_duration_ms":60163.924,"logging_and_other_duration_ms":17.819}
+```
+
+The invalid threshold trials came from the same command with
+`--review-threshold 1.5`. The error path recorded all three failures:
+
+```json
+{"timestamp":"2026-11-13T03:23:49.583659+00:00","event":"run_error","error_type":"ValueError","error":"review threshold must be between 0 and 1","duration_ms":0.615}
+{"timestamp":"2026-11-13T03:24:00.805467+00:00","event":"run_error","error_type":"ValueError","error":"review threshold must be between 0 and 1","duration_ms":0.418}
+{"timestamp":"2026-11-13T03:24:14.041636+00:00","event":"run_error","error_type":"ValueError","error":"review threshold must be between 0 and 1","duration_ms":0.419}
+```
+
+### Verdicts and diagnosis
+
+Criterion 1 met. All 99 prediction records had the required fields.
+
+Criterion 2 missed. The 0.75 threshold sent 30 of 33 posts to review every
+time. The queue is too large, so the threshold is too strict for this model.
+
+Criterion 3 missed. Only three posts stayed trusted, and their accuracy was
+0.333. The model did not leave enough predictions outside the queue to meet
+the target. This is connected to the same threshold problem, not three
+separate disasters wearing matching hats.
+
+Criterion 4 met. All three invalid threshold trials failed quickly and wrote a
+`run_error` record.
+
+Criterion 5 met. The average full-run time was **1.736 seconds per post**.
+Model loading, prediction, and other work were recorded separately in every
+completion record.
+
+I stopped here because the test is complete. A later improvement would try a
+lower threshold, but changing it now would mix the fix into the first test.
+
 
 
 

@@ -133,9 +133,6 @@ def classify_with_review(
     """Classify posts and mark predictions that need a human check."""
     from transformers import pipeline
 
-    if not 0.0 <= threshold <= 1.0:
-        raise ValueError("review threshold must be between 0 and 1")
-
     started = time.perf_counter()
     if log_path:
         log_record(log_path, {
@@ -146,6 +143,9 @@ def classify_with_review(
         })
 
     try:
+        if not 0.0 <= threshold <= 1.0:
+            raise ValueError("review threshold must be between 0 and 1")
+
         if not quiet:
             print(f"Loading {ZERO_SHOT_MODEL} (first run downloads ~1.6 GB)…", flush=True)
 

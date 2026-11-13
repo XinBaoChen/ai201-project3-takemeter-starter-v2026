@@ -1,0 +1,6 @@
+{"timestamp": "2026-11-13T03:23:49.582659+00:00", "event": "run_started", "input_count": 33, "threshold": 1.5}
+{"timestamp": "2026-11-13T03:23:49.583659+00:00", "event": "run_error", "error_type": "ValueError", "error": "review threshold must be between 0 and 1", "duration_ms": 0.615}
+{"timestamp": "2026-11-13T03:24:00.804336+00:00", "event": "run_started", "input_count": 33, "threshold": 1.5}
+{"timestamp": "2026-11-13T03:24:00.805467+00:00", "event": "run_error", "error_type": "ValueError", "error": "review threshold must be between 0 and 1", "duration_ms": 0.418}
+{"timestamp": "2026-11-13T03:24:14.041636+00:00", "event": "run_started", "input_count": 33, "threshold": 1.5}
+{"timestamp": "2026-11-13T03:24:14.041636+00:00", "event": "run_error", "error_type": "ValueError", "error": "review threshold must be between 0 and 1", "duration_ms": 0.419}
