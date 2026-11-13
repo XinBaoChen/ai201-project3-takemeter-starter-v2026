@@ -68,6 +68,46 @@ I also plan to measure a latency breakdown. I will record how long each stage
 takes during one run, including loading the model, preparing the text,
 predicting the label, and writing the log.
 
+## Instrumentation
+
+I picked Path B because the local baseline model is about 1.6 GB. The review
+command writes JSONL records to `run_log.jsonl`. This is a real file, not just
+terminal output that disappears when the window closes.
+
+Each record has named fields. A prediction record includes the timestamp,
+input, output, confidence, review decision, and duration. Starts, completions,
+and errors are logged too. I ran the command ten times on one held-out post.
+Here are ten prediction records from that run:
+
+```json
+{"timestamp":"2026-11-12T22:51:51.245800+00:00","event":"prediction","input":"Feedback on Garmin coach experience","output":"reaction","confidence":0.518062,"needs_review":true,"duration_ms":2654.263}
+{"timestamp":"2026-11-12T22:52:03.296239+00:00","event":"prediction","input":"Feedback on Garmin coach experience","output":"reaction","confidence":0.518062,"needs_review":true,"duration_ms":2595.410}
+{"timestamp":"2026-11-12T22:52:15.612417+00:00","event":"prediction","input":"Feedback on Garmin coach experience","output":"reaction","confidence":0.518062,"needs_review":true,"duration_ms":2598.827}
+{"timestamp":"2026-11-12T22:52:27.850186+00:00","event":"prediction","input":"Feedback on Garmin coach experience","output":"reaction","confidence":0.518062,"needs_review":true,"duration_ms":2601.270}
+{"timestamp":"2026-11-12T22:52:40.021658+00:00","event":"prediction","input":"Feedback on Garmin coach experience","output":"reaction","confidence":0.518062,"needs_review":true,"duration_ms":2575.863}
+{"timestamp":"2026-11-12T22:52:52.315321+00:00","event":"prediction","input":"Feedback on Garmin coach experience","output":"reaction","confidence":0.518062,"needs_review":true,"duration_ms":2600.878}
+{"timestamp":"2026-11-12T22:53:04.585093+00:00","event":"prediction","input":"Feedback on Garmin coach experience","output":"reaction","confidence":0.518062,"needs_review":true,"duration_ms":2593.849}
+{"timestamp":"2026-11-12T22:53:16.314459+00:00","event":"prediction","input":"Feedback on Garmin coach experience","output":"reaction","confidence":0.518062,"needs_review":true,"duration_ms":2519.081}
+{"timestamp":"2026-11-12T22:53:27.881478+00:00","event":"prediction","input":"Feedback on Garmin coach experience","output":"reaction","confidence":0.518062,"needs_review":true,"duration_ms":2549.748}
+{"timestamp":"2026-11-12T22:53:39.461286+00:00","event":"prediction","input":"Feedback on Garmin coach experience","output":"reaction","confidence":0.518062,"needs_review":true,"duration_ms":2546.760}
+```
+
+The full log is in [run_log.jsonl](run_log.jsonl). The text above is shortened
+so the README does not become a novel about one Garmin post.
+
+## What It Costs
+
+This system has no API bill. I measured local CPU time instead. I ran the
+review command ten times with one held-out post each time. The average full
+run cost was **3201.419 ms**, or about **3.20 seconds**. I calculated that by
+averaging the ten `duration_ms` values from the `run_completed` records.
+
+The latency breakdown was also measured. Model loading averaged **616.823 ms**.
+Prediction averaged **2583.595 ms**. Logging and other work averaged **1.000
+ms**. The full log keeps the numbers, so this is not a guess wearing a lab
+coat.
+
+
 
 
 ---

@@ -167,6 +167,25 @@ label and adds its confidence plus `needs_review`. Posts below the threshold
 go into the review queue. The command writes those records to
 `review_results.json`.
 
+### Path B run and logs
+
+This project uses **Path B**. It runs locally because the baseline model is
+large and needs more memory than a small free host usually gives it.
+
+The exact command for the capstone review run is:
+
+```powershell
+python baseline.py --review-threshold 0.75 --review-out review_results.json --log run_log.jsonl
+```
+
+Run it from the repository folder with the `.venv` active. Python 3.11, the
+packages in `requirements.txt`, and the downloaded `facebook/bart-large-mnli`
+model are required. The model download is about 1.6 GB. No API key is needed.
+
+The command appends JSON records to `run_log.jsonl`. It records run starts,
+predictions, completions, and errors. Prediction records include the timestamp,
+input, output, confidence, review decision, and duration in milliseconds.
+
 **It scores `test_split.csv`** — the held-out posts the notebook saved in unit 5,
 the same ones your trained model was measured on. Two numbers from two different
 sets of posts aren't a comparison, which is why it reads that file rather than

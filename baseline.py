@@ -32,6 +32,8 @@ during.
 import argparse
 import json
 import sys
+import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Windows consoles default to a codepage that can't encode the characters this
@@ -120,41 +122,114 @@ def classify(texts, labels, definitions=None, quiet=False):
     return predictions
 
 
-def classify_with_review(texts, labels, definitions=None, threshold=0.75, quiet=False):
+def log_record(path, record):
+    with Path(path).open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, ensure_ascii=True) + "\n")
+
+
+def classify_with_review(
+    texts, labels, definitions=None, threshold=0.75, quiet=False, log_path=None
+):
     """Classify posts and mark predictions that need a human check."""
     from transformers import pipeline
 
     if not 0.0 <= threshold <= 1.0:
         raise ValueError("review threshold must be between 0 and 1")
 
-    if not quiet:
-        print(f"Loading {ZERO_SHOT_MODEL} (first run downloads ~1.6 GB)…", flush=True)
-
-    classifier = pipeline("zero-shot-classification", model=ZERO_SHOT_MODEL)
-    definitions = definitions or {}
-    candidates = [definitions.get(label, label) for label in labels]
-    back = {candidate: label for candidate, label in zip(candidates, labels)}
-    records = []
-
-    for i, text in enumerate(texts, 1):
-        if not quiet:
-            print(f"  {i}/{len(texts)}", end="\r", flush=True)
-        result = classifier(
-            str(text),
-            candidate_labels=candidates,
-            hypothesis_template=HYPOTHESIS,
-        )
-        confidence = float(result["scores"][0])
-        records.append({
-            "text": str(text),
-            "predicted": back[result["labels"][0]],
-            "confidence": confidence,
-            "needs_review": confidence < threshold,
+    started = time.perf_counter()
+    if log_path:
+        log_record(log_path, {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "event": "run_started",
+            "input_count": len(texts),
+            "threshold": threshold,
         })
 
-    if not quiet:
-        print(" " * 30, end="\r")
-    return records
+    try:
+        if not quiet:
+            print(f"Loading {ZERO_SHOT_MODEL} (first run downloads ~1.6 GB)…", flush=True)
+
+        model_started = time.perf_counter()
+        classifier = pipeline("zero-shot-classification", model=ZERO_SHOT_MODEL)
+        model_load_ms = round((time.perf_counter() - model_started) * 1000, 3)
+        definitions = definitions or {}
+        candidates = [definitions.get(label, label) for label in labels]
+        back = {candidate: label for candidate, label in zip(candidates, labels)}
+        records = []
+        prediction_total_ms = 0.0
+
+        for i, text in enumerate(texts, 1):
+            prediction_started = time.perf_counter()
+            try:
+                if not quiet:
+                    print(f"  {i}/{len(texts)}", end="\r", flush=True)
+                result = classifier(
+                    str(text),
+                    candidate_labels=candidates,
+                    hypothesis_template=HYPOTHESIS,
+                )
+                confidence = float(result["scores"][0])
+                record = {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "event": "prediction",
+                    "input": str(text),
+                    "output": back[result["labels"][0]],
+                    "confidence": confidence,
+                    "needs_review": confidence < threshold,
+                    "duration_ms": round(
+                        (time.perf_counter() - prediction_started) * 1000, 3
+                    ),
+                }
+                prediction_total_ms += record["duration_ms"]
+                records.append({
+                    "text": str(text),
+                    "predicted": record["output"],
+                    "confidence": confidence,
+                    "needs_review": record["needs_review"],
+                })
+            except Exception as error:
+                record = {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "event": "prediction_error",
+                    "input": str(text),
+                    "error_type": type(error).__name__,
+                    "error": str(error),
+                    "duration_ms": round(
+                        (time.perf_counter() - prediction_started) * 1000, 3
+                    ),
+                }
+                if log_path:
+                    log_record(log_path, record)
+                raise
+            if log_path:
+                log_record(log_path, record)
+
+        if not quiet:
+            print(" " * 30, end="\r")
+        if log_path:
+            total_duration_ms = round((time.perf_counter() - started) * 1000, 3)
+            log_record(log_path, {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "event": "run_completed",
+                "output_count": len(records),
+                "duration_ms": total_duration_ms,
+                "model_load_duration_ms": model_load_ms,
+                "prediction_duration_ms": round(prediction_total_ms, 3),
+                "logging_and_other_duration_ms": round(
+                    total_duration_ms - model_load_ms - prediction_total_ms, 3
+                ),
+            })
+        return records
+    except Exception as error:
+        if log_path:
+            log_record(log_path, {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "event": "run_error",
+                "error_type": type(error).__name__,
+                "error": str(error),
+                "duration_ms": round((time.perf_counter() - started) * 1000, 3),
+            })
+        raise
 
 
 def score(gold, predicted, labels):
@@ -243,6 +318,8 @@ def main():
                         help="also flag predictions below this confidence (0 to 1)")
     parser.add_argument("--review-out", default="review_results.json",
                         help="JSON file for confidence review results")
+    parser.add_argument("--log", default="run_log.jsonl",
+                        help="append structured run records to this JSONL file")
     args = parser.parse_args()
 
     try:
@@ -308,7 +385,11 @@ def main():
     else:
         try:
             review_records = classify_with_review(
-                texts, labels, definitions, threshold=args.review_threshold
+                texts,
+                labels,
+                definitions,
+                threshold=args.review_threshold,
+                log_path=args.log,
             )
         except ValueError as error:
             parser.error(str(error))
