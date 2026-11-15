@@ -159,7 +159,7 @@ has to beat.
 The baseline can also flag predictions that look unsure:
 
 ```bash
-python baseline.py --review-threshold 0.75 --review-out review_results.json
+python baseline.py --review-threshold 0.50 --review-out review_results.json
 ```
 
 The normal command still works the old way. The extra flag keeps the predicted
@@ -175,7 +175,7 @@ large and needs more memory than a small free host usually gives it.
 The exact command for the capstone review run is:
 
 ```powershell
-python baseline.py --review-threshold 0.75 --review-out review_results.json --log run_log.jsonl
+python baseline.py --review-threshold 0.50 --review-out review_results.json --log run_log.jsonl
 ```
 
 Run it from the repository folder with the `.venv` active. Python 3.11, the

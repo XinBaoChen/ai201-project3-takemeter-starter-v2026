@@ -37,10 +37,11 @@
 
 <!-- ═══════════════════════ UNIT 5 — THE BUILD ═══════════════════════ -->
 
-## What This Does
+## What This Extends
 
-<!-- Your community, and what your classifier sorts posts into. Three or four
-     sentences. -->
+This capstone extends the TakeMeter classifier from the earlier project. The
+new part is the confidence review queue in `baseline.py`. The old labels and
+the original baseline command still work.
 
 Milestone 1 community: [r/running](https://www.reddit.com/r/running/), a public
 community with training logs, race reports, questions, gear discussions, and
@@ -107,6 +108,20 @@ Prediction averaged **2583.595 ms**. Logging and other work averaged **1.000
 ms**. The full log keeps the numbers, so this is not a guess wearing a lab
 coat.
 
+For 100 people sending one post each day, the arithmetic is:
+
+`100 posts x 3.20 seconds = 320 seconds`
+
+That is about **5 minutes and 20 seconds of local CPU time per day**. There is
+still no API charge, but the laptop does have to earn its snacks.
+
+## Running It
+
+This is Path B, local with logs. The exact setup and start command are in
+[RUNNING.md](RUNNING.md). The review command writes its records to
+`run_log.jsonl`, so the run leaves evidence behind instead of vanishing when
+the terminal closes.
+
 ## Milestone 5 Run Log
 
 I ran the review command three times with the same threshold and the same
@@ -168,6 +183,56 @@ completion record.
 
 I stopped here because the test is complete. A later improvement would try a
 lower threshold, but changing it now would mix the fix into the first test.
+
+## Milestone 6: Diagnosis and one improvement
+
+The two misses had the same cause. The review threshold was too strict for
+this model. At `0.75`, it sent 30 of 33 posts to review every time. That left
+only three trusted posts, so criterion 3 could not reach its minimum of 10
+trusted posts. The problem was in the review decision stage, not in logging
+or model loading.
+
+I made one change: I lowered the threshold from `0.75` to `0.50`. I changed
+nothing else. The model still gets the same posts, the same labels, and the
+same test.
+
+### Before and after
+
+| Criterion | Before Run 1 | Before Run 2 | Before Run 3 | Before verdict | After Run 1 | After Run 2 | After Run 3 | After verdict |
+|---|---:|---:|---:|---|---:|---:|---:|---|
+| 1. Complete prediction records | 33/33 | 33/33 | 33/33 | MET | 33/33 | 33/33 | 33/33 | MET |
+| 2. Useful review queue | 90.91% | 90.91% | 90.91% | MISSED | 51.52% | 51.52% | 51.52% | MISSED against original 0.75 target |
+| 3. Trusted accuracy | 0.333, 3 trusted | 0.333, 3 trusted | 0.333, 3 trusted | MISSED | 0.250, 16 trusted | 0.250, 16 trusted | 0.250, 16 trusted | MISSED |
+| 4. Invalid input leaves evidence | 1/1 | 1/1 | 1/1 | MET | 1/1 | 1/1 | 1/1 | MET |
+| 5. Runtime and breakdown | 1.871s/post | 1.670s/post | 1.667s/post | MET | 1.970s/post | 1.687s/post | 1.713s/post | MET |
+
+The after-run records are in
+[milestone6_after_log.jsonl](milestone6_after_log.jsonl), and the after-run
+error records are in
+[milestone6_invalid_log.jsonl](milestone6_invalid_log.jsonl).
+
+The first after prediction looked like this:
+
+```json
+{"timestamp":"2026-11-15T19:45:53.262178+00:00","event":"prediction","output":"reaction","confidence":0.518062,"needs_review":false,"duration_ms":7160.27}
+```
+
+The first after completion included the full timing breakdown:
+
+```json
+{"timestamp":"2026-11-15T19:46:50.031852+00:00","event":"run_completed","output_count":33,"duration_ms":65000.713,"model_load_duration_ms":1069.528,"prediction_duration_ms":63903.083,"logging_and_other_duration_ms":28.102}
+```
+
+The lower threshold fixed the queue size. It did not fix the classifier. The
+trusted accuracy fell to 0.250, even though there were now enough trusted
+posts to measure it. That is still a useful result. The warning label got
+less dramatic, but the model's actual judgment did not get smarter.
+
+I am leaving criterion 3 as MISSED. The next real fix would need better
+classification or better calibration, not another round of threshold
+guessing. I stopped after one improvement so the cause stayed clear instead
+of turning the project into a soup of random settings.
+
 
 
 
@@ -384,6 +449,17 @@ for the required cold-label block.
 AI did not make the final training or agreement decisions for me. I checked the
 CSV, staff labels, metrics, and confusion matrices against the saved artifacts.
 
+### Capstone use
+
+For this unit, I used AI to help inspect the confidence review code and find
+where the low-confidence decision was made. I kept the feature small and
+reused the existing baseline instead of building a second classifier.
+
+I also used AI to check the run evidence. It helped count the structured
+records, compare the three trials, and calculate the latency breakdown. I
+checked the actual JSONL files myself and kept the misses instead of changing
+the criteria after seeing the results.
+
 <!-- ═══════════════════════ UNIT 6 — THE TEST ═══════════════════════
 
      Don't fill these in during unit 5.
@@ -596,18 +672,27 @@ stable and did not meet the targets. Tiny dataset, big feelings.
 
 ## What's Still Broken
 
-Criteria 1 and 2 are still missed: the weighted model averages 0.525 accuracy
-and 0.345 macro F1 across the three seeds, below the targets. Reaction F1 is
-still 0.267, 0, and 0, so the thinnest label remains difficult. The after
-spread is over ten percentage points, which means this 216-row, imbalanced
-dataset is not a stable measurement yet. Criteria 3 and 4 remain met; criterion
-5 is still not tested because each confidence group has only 11 examples,
-below the required 15.
+For the capstone review extension, criteria 2 and 3 are still missed.
 
-If I continued, I would add carefully labeled examples to `reaction` and
-rebalance the dataset before trying another training setting. I stopped after
-one controlled change so its effect stayed identifiable, rather than turning
-the experiment into a mystery stew.
+**Criterion 2:** The original `0.75` threshold sent 30 of 33 posts to review
+in all three runs. The problem is in the review decision stage. The threshold
+is too strict for this model, so the queue gets too large.
+
+**Criterion 3:** With the original threshold, only three posts stayed trusted.
+After lowering the threshold to `0.50`, 16 posts stayed trusted, but their
+accuracy was only 0.250. The problem is now in the classifier's predictions,
+not the logger. The model is confident enough to escape review, but it is
+still wrong too often.
+
+I stopped after one improvement because the unit asked for one controlled fix.
+Changing the threshold again would make the experiment harder to explain. If I
+had another unit, I would first calibrate the confidence scores on a separate
+validation set. That is the first step because the current threshold is making
+the review queue do too much work while still missing good automatic answers.
+
+The older classifier also still struggles with the `reaction` label. If I had
+more time after calibration, I would add more carefully labeled reaction posts
+and test the model again. Tiny data, tiny label, giant headache.
 
 
 

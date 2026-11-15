@@ -23,7 +23,7 @@ accuracy.
     python baseline.py --help
     python baseline.py
     python baseline.py --trained results.json
-    python baseline.py --review-threshold 0.75 --review-out review_results.json
+    python baseline.py --review-threshold 0.50 --review-out review_results.json
 
 The first run downloads the model, about 1.6 GB. Do that before class, not
 during.
